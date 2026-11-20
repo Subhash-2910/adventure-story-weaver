@@ -1,0 +1,69 @@
+{
+  "best_val_loss": 4.298093712329864,
+  "best_val_perplexity": 73.55943451656935,
+  "best_step": 2250,
+  "note": "run stopped by hand at step 2250 of a planned 5000 (time limit); best checkpoint kept",
+  "device": "mps (Apple M3)",
+  "history": [
+    {
+      "step": 0,
+      "train_loss": 8.376,
+      "val_loss": 8.375,
+      "elapsed_s": 4.0
+    },
+    {
+      "step": 250,
+      "train_loss": 5.267,
+      "val_loss": 5.378,
+      "elapsed_s": 50.0
+    },
+    {
+      "step": 500,
+      "train_loss": 4.843,
+      "val_loss": 5.024,
+      "elapsed_s": 111.0
+    },
+    {
+      "step": 750,
+      "train_loss": 4.562,
+      "val_loss": 4.787,
+      "elapsed_s": 194.0
+    },
+    {
+      "step": 1000,
+      "train_loss": 4.378,
+      "val_loss": 4.635,
+      "elapsed_s": 273.0
+    },
+    {
+      "step": 1250,
+      "train_loss": 4.231,
+      "val_loss": 4.532,
+      "elapsed_s": 348.0
+    },
+    {
+      "step": 1500,
+      "train_loss": 4.112,
+      "val_loss": 4.45,
+      "elapsed_s": 414.0
+    },
+    {
+      "step": 1750,
+      "train_loss": 4.007,
+      "val_loss": 4.387,
+      "elapsed_s": 485.0
+    },
+    {
+      "step": 2000,
+      "train_loss": 3.911,
+      "val_loss": 4.355,
+      "elapsed_s": 545.0
+    },
+    {
+      "step": 2250,
+      "train_loss": 3.834,
+      "val_loss": 4.298,
+      "elapsed_s": 616.0
+    }
+  ]
+}
