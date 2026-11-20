@@ -13,3 +13,4 @@ data/app.json
 stories/
 .DS_Store
 *.db
+data/tokens.pt

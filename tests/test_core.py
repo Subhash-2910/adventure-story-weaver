@@ -2,8 +2,11 @@
 from pathlib import Path
 
 import pytest
+import torch
 
-from app import corpus
+from app import core, corpus
+from app.embeddings import GPTEmbedding
+from app.tokenizer import BPETokenizer
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -58,10 +61,38 @@ def test_milestone_1_committed_corpus_is_real_and_large():
     assert "Treasure" in text and "Mars" in text
 
 
-# Milestone 2: Implement the byte-pair tokenizer and generate embeddings from the story text.
-@pytest.mark.skip(reason="milestone 2 not started")
-def test_milestone_2():
-    raise NotImplementedError
+# ---------------------------------------------------------------- Milestone 2: tokenizer + embeddings
+STORY = ("The captain drew his sword. The captain looked at the dark sea, and the crew looked at the captain. "
+         "\"Treasure!\" cried the boy. The treasure lay deep in the cave. ") * 20
+
+
+def test_milestone_2_bpe_learns_merges_and_round_trips():
+    tok = BPETokenizer().train(STORY, vocab_size=300)
+    assert tok.vocab_size == 300
+    ids = tok.encode(STORY)
+    assert len(ids) < len(STORY.encode()) / 2          # merges compress the text
+    assert tok.decode(ids) == STORY                     # lossless
+    assert " captain" in tok.token_strings(tok.encode(" captain"))  # frequent word became one token
+
+
+def test_milestone_2_bpe_handles_unseen_text_and_save_load(tmp_path):
+    tok = BPETokenizer().train(STORY, vocab_size=280)
+    unseen = "Zebras \u00e9t\u00e9 42 xylophone!"
+    assert tok.decode(tok.encode(unseen)) == unseen      # byte fallback: nothing is unknown
+    tok.save(tmp_path / "tok.json")
+    again = BPETokenizer.load(tmp_path / "tok.json")
+    assert again.encode(STORY) == tok.encode(STORY)
+
+
+def test_milestone_2_embeddings_shape_and_position_matters():
+    tok, ids, vectors = core.milestone_2(STORY, vocab_size=300, n_embd=16, block_size=32)
+    assert vectors.shape == (1, 32, 16)
+    emb = GPTEmbedding(tok.vocab_size, block_size=8, n_embd=16)
+    same = torch.tensor([[5, 5]])
+    out = emb(same)
+    assert not torch.allclose(out[0, 0], out[0, 1])     # same token, different position -> different vector
+    with pytest.raises(ValueError):
+        emb(torch.zeros(1, 9, dtype=torch.long))
 
 
 # Milestone 3: Build the causal self-attention mechanism and assemble the transformer block.
