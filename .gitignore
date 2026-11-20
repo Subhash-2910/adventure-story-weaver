@@ -7,6 +7,9 @@ __pycache__/
 .venv/
 .pytest_cache/
 
-# Local data
-data/
+# Local data (the cleaned corpus data/corpus.txt and the trained model in checkpoints/ ARE committed)
+data/raw/
+data/app.json
+stories/
+.DS_Store
 *.db
