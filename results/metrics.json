@@ -1,0 +1,111 @@
+{
+  "validation_tokens": 93748,
+  "gpt": {
+    "val_loss": 4.3057,
+    "perplexity": 74.1,
+    "params": 7211520,
+    "trained_steps": 2250
+  },
+  "bigram_baseline": {
+    "val_loss": 5.2258,
+    "perplexity": 186.0
+  },
+  "uniform_guess": {
+    "val_loss": 8.3178,
+    "perplexity": 4096
+  },
+  "gpt_vs_bigram_perplexity_reduction": "60%",
+  "mean_copied_8gram_fraction": 0.0,
+  "samples": [
+    {
+      "temperature": 0.5,
+      "prompt": "The cave mouth was black, and from somewhere deep inside it came",
+      "continuation": " in the darkness.\n\n\"I can see that you are about to do with a man,\" I answered, \"but you are not dead, and I may have no time to go.\"\n\n\"It is a very low,\" he said, \"but I shall be sure.\"\n\n\"Well, that's what you will be?\"\n\n\"I am a good friend,\" said Alan.",
+      "copied_8gram_fraction": 0.0
+    },
+    {
+      "temperature": 0.5,
+      "prompt": "Captain Hawk unrolled the old map on the table and pointed at",
+      "continuation": " the same time to the other.\n\n\"Well,\" said he, \"that's what you would be a man?\"\n\n\"Ay, sir,\" says I; \"but if ye're not the name of this here.\"\n\n\"The captain,\" cried Silver, \"I'm a good-coat, and that'll have to keep your part, and I am sure enough for the men, and I'll take the lot for my mind.\"",
+      "copied_8gram_fraction": 0.0
+    },
+    {
+      "temperature": 0.5,
+      "prompt": "When the sun rose over the desert, we saw",
+      "continuation": " that we were now. It was not long, but I could see nothing elsewhere in the morning of the cave.\n\n\"We have done,\" said Sir Henry, with a little task of which we had been able to be our way to the edge of the cliff. \"The road is, and I will take you back again.\"\n\nI had not long seen that it was at least a moment, but it was not only one of us, but I could not have no doubt what they were, for a man, and there was no longer than he could see the Masai",
+      "copied_8gram_fraction": 0.0
+    },
+    {
+      "temperature": 0.5,
+      "prompt": "\"We cannot stay here,\" said the guide. \"",
+      "continuation": "It is a very nation.\"\n\n\"I will tell you that I am, and it is not to be a true man. It is no doubt. If there are no water for a week. We have heard of them.\"\n\n\"Then I don't know what we can do. But I give you to get it at the journey. You must be able to go with us in the place,\" said Sir Henry.",
+      "copied_8gram_fraction": 0.0
+    },
+    {
+      "temperature": 0.5,
+      "prompt": "I drew my sword and stepped towards the strange green warrior,",
+      "continuation": " and I saw that he was dead.\n\n\"You are a man of Helium,\" she said; \"but it is the one who can be killed in the outer world's palace to Issus.\"\n\nThe boy sprang toward the platform.\n\n\"The therns of Helium,\" I cried, \"it is not unseen to fight for a second man with John Carter; but I am dead.\"",
+      "copied_8gram_fraction": 0.0
+    },
+    {
+      "temperature": 0.8,
+      "prompt": "The cave mouth was black, and from somewhere deep inside it came",
+      "continuation": " out of the great water.\n\n\"I have seen a good man that you had seen me,\" he said; \"then I'll do no word, nor could I get another here.\"\n\nIt was a heavy voice that he seemed to be the whole story in the house. The whole, which at last he made a great matter, for there he went from his head and looked at once more than a bench, like a very good-headed man upon his mixt; and he was all his own name, which I thought.",
+      "copied_8gram_fraction": 0.0
+    },
+    {
+      "temperature": 0.8,
+      "prompt": "Captain Hawk unrolled the old map on the table and pointed at",
+      "continuation": " the water. This, in a few minutes, we had already been making our way down and setting the leaf and took some way along the cliff.\n\n\"That's what?\" asked Mr. Riach, in a folly-glass. \"It's good one of it; but you'll tell me that,\" said I, \"and what ye were to get on a girket, and I'm glad to have you.\"",
+      "copied_8gram_fraction": 0.0
+    },
+    {
+      "temperature": 0.8,
+      "prompt": "When the sun rose over the desert, we saw",
+      "continuation": " that we were not able to come. When they came upon us, and then Sir Henry had put them on, I saw him the luest of such a spear - and nobody did so, though he was in his hands, and I could not see nothing more.\n\n\"Oh, Macumazahn,\" I said, \"I will take ye that I never have seen any other people, and there are no more as a man.\"",
+      "copied_8gram_fraction": 0.0
+    },
+    {
+      "temperature": 0.8,
+      "prompt": "\"We cannot stay here,\" said the guide. \"",
+      "continuation": "Seople White Lads.\"\n\n\"It is an end of us now, Sir Henry, a king's homes tolla. Go! I am a very foolish man. Hence to show ye that he would ever show you all my fathers, and the white man of Issus. Ken to thee, my dear and we will go with thee in the place of May,\" I answered, \"but there shall be no harm for us.\"",
+      "copied_8gram_fraction": 0.0
+    },
+    {
+      "temperature": 0.8,
+      "prompt": "I drew my sword and stepped towards the strange green warrior,",
+      "continuation": " and I saw that he was dead.\n\n\"You could not be such a man,\" she said, \"that you were dead.\"\n\n\"No,\" she cried; \"you can say of her.\"\n\nShe turned to me from my throat, and clasped her in his hands from the proud silence.\n\n\"If I did not know that I had ever told I am dead.",
+      "copied_8gram_fraction": 0.0
+    },
+    {
+      "temperature": 1.1,
+      "prompt": "The cave mouth was black, and from somewhere deep inside it came",
+      "continuation": " out with a great bristch.\n\nMy eyes turned up to the roof from my lodcase was a very damid, and then, like noblood of a man who had been taken in his head; he seemed almost as bright as his rifle like a bird still in his rowing skull, whipped and kninging into his neck from his lips.\n",
+      "copied_8gram_fraction": 0.0
+    },
+    {
+      "temperature": 1.1,
+      "prompt": "Captain Hawk unrolled the old map on the table and pointed at",
+      "continuation": " the water. This, in time, as far as to one of the HISPANIOLA--all he seemed to be a great and no difficulty, and that he could not be so bad for a bit, and I thought he had a folly man; and then I could scarcely have nothing for help out so much discernible with his own way all this man. There was something dark when he was the same breath of a man's house.",
+      "copied_8gram_fraction": 0.0
+    },
+    {
+      "temperature": 1.1,
+      "prompt": "When the sun rose over the desert, we saw",
+      "continuation": " that we were not able to come as long, so soon before darkenching into it. At last we lay down. In the water was dark at an hour's. For some distance before dawn came another second and came our hands in silence. It did not keep the night--boat shill, for my head turned round on my shoulder, and fell up the pines of a tree at the cave--that there stood no need for it, but I could see this awful breath.",
+      "copied_8gram_fraction": 0.0
+    },
+    {
+      "temperature": 1.1,
+      "prompt": "\"We cannot stay here,\" said the guide. \"",
+      "continuation": "Let them lie where Twala has been as a woman or will follow to this man.\"\n\n\"Monst a king? It will not be the way. And who see them today, and do if we shall go to the Kilt?\"\n\nThen Thuvia ceased to his feet, and the guardsman of Issus broke upon us to the ruddy wail.\n\nWe rose from Twala's head.",
+      "copied_8gram_fraction": 0.0
+    },
+    {
+      "temperature": 1.1,
+      "prompt": "I drew my sword and stepped towards the strange green warrior,",
+      "continuation": " and gave it to his great Thark.\n\nIt seemed to me that of them had been so territative, as though I would reach the deck I saw Dejah Thoris and Tars Tarkas and he was too close behind me and the rook from my cell. A moment later the blacks were the two of battle, for a moment it might know but be another with John Carter; I stood in dead hands until I had killed my shoulder and told him no longer fear before my quarters in so that this time had seen the long-dress of my eyes were almost as he fell upon him.",
+      "copied_8gram_fraction": 0.0
+    }
+  ]
+}
