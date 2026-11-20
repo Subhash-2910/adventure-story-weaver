@@ -26,3 +26,10 @@ def milestone_2(text: str, vocab_size: int = 4096, n_embd: int = 64, block_size:
     ids = tok.encode(text)[:block_size]
     emb = GPTEmbedding(tok.vocab_size, block_size, n_embd)
     return tok, ids, emb(torch.tensor([ids]))
+
+
+# --- Milestone 3: Build the causal self-attention mechanism and assemble the transformer block.
+def milestone_3(vocab_size: int = 4096, **overrides):
+    """Build a GPT (embeddings -> N x [causal self-attention + MLP] blocks -> logits)."""
+    from app.model import GPT, GPTConfig
+    return GPT(GPTConfig(vocab_size=vocab_size, **overrides))

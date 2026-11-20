@@ -6,6 +6,7 @@ import torch
 
 from app import core, corpus
 from app.embeddings import GPTEmbedding
+from app.model import GPT, Block, CausalSelfAttention, GPTConfig
 from app.tokenizer import BPETokenizer
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -95,10 +96,45 @@ def test_milestone_2_embeddings_shape_and_position_matters():
         emb(torch.zeros(1, 9, dtype=torch.long))
 
 
-# Milestone 3: Build the causal self-attention mechanism and assemble the transformer block.
-@pytest.mark.skip(reason="milestone 3 not started")
-def test_milestone_3():
-    raise NotImplementedError
+# ---------------------------------------------------------------- Milestone 3: attention + transformer
+TINY = dict(vocab_size=50, block_size=16, n_layer=2, n_head=2, n_embd=32, dropout=0.0)
+
+
+def test_milestone_3_attention_is_causal():
+    torch.manual_seed(0)
+    cfg = GPTConfig(**TINY)
+    attn = CausalSelfAttention(cfg).eval()
+    x = torch.randn(1, 10, 32)
+    y = attn(x)
+    w = attn.last_attention[0]                          # (H, T, T)
+    assert torch.all(w.triu(diagonal=1) == 0)           # nothing attends to the future
+    assert torch.allclose(w.sum(-1), torch.ones(2, 10))  # each row is a probability distribution
+    # changing the last token must not change earlier outputs
+    x2 = x.clone()
+    x2[0, -1] += 5.0
+    assert torch.allclose(attn(x2)[0, :-1], y[0, :-1], atol=1e-6)
+
+
+def test_milestone_3_block_and_gpt_shapes():
+    torch.manual_seed(0)
+    cfg = GPTConfig(**TINY)
+    x = torch.randn(3, 7, 32)
+    assert Block(cfg)(x).shape == x.shape
+    model = core.milestone_3(**TINY)
+    idx = torch.randint(0, 50, (3, 16))
+    logits, loss = model(idx, idx)
+    assert logits.shape == (3, 16, 50)
+    # an untrained model is close to uniform: loss ~ ln(vocab)
+    assert abs(loss.item() - torch.log(torch.tensor(50.0)).item()) < 0.5
+    assert model.head.weight is model.embed.token.weight  # weight tying
+
+
+def test_milestone_3_checkpoint_round_trip(tmp_path):
+    model = GPT(GPTConfig(**TINY)).eval()
+    model.save(tmp_path / "m.pt", {"note": "hi"})
+    again, ckpt = GPT.load(tmp_path / "m.pt")
+    idx = torch.randint(0, 50, (1, 8))
+    assert torch.allclose(model(idx)[0], again(idx)[0]) and ckpt["note"] == "hi"
 
 
 # Milestone 4: Set up the training loop and train the GPT model on the narrative data.
