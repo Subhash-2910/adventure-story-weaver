@@ -1,13 +1,17 @@
 """Tests for each milestone. They use tiny inputs so the whole suite runs in seconds on CPU."""
+import json
 from pathlib import Path
 
 import pytest
 import torch
 
-from app import core, corpus
+from app import cli, core, corpus
+from app.baseline import BigramBaseline
 from app.embeddings import GPTEmbedding
+from app.generate import SamplingConfig, StoryGenerator, apply_repetition_penalty, filter_logits
 from app.model import GPT, Block, CausalSelfAttention, GPTConfig
 from app.tokenizer import BPETokenizer
+from app.train import TrainConfig, get_batch, lr_at, train
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -137,19 +141,128 @@ def test_milestone_3_checkpoint_round_trip(tmp_path):
     assert torch.allclose(model(idx)[0], again(idx)[0]) and ckpt["note"] == "hi"
 
 
-# Milestone 4: Set up the training loop and train the GPT model on the narrative data.
-@pytest.mark.skip(reason="milestone 4 not started")
-def test_milestone_4():
-    raise NotImplementedError
+# ---------------------------------------------------------------- Milestone 4: training loop
+def _tiny_train(tmp_path, steps=60):
+    tok = BPETokenizer().train(STORY, vocab_size=300)
+    cfg = TrainConfig(out_dir=str(tmp_path), model=GPTConfig(**{**TINY, "vocab_size": 300}),
+                      batch_size=8, max_steps=steps, eval_every=steps // 2, eval_batches=3,
+                      warmup_steps=5, lr=3e-3, device="cpu", val_fraction=0.2)
+    return tok, train(cfg, text=STORY, tokenizer=tok, log=lambda *_: None)
 
 
-# Milestone 5: Implement a text generation feature that creates coherent story continuations.
-@pytest.mark.skip(reason="milestone 5 not started")
-def test_milestone_5():
-    raise NotImplementedError
+def test_milestone_4_training_reduces_loss_and_saves_checkpoint(tmp_path):
+    tok, log = _tiny_train(tmp_path)
+    first, last = log["history"][0], log["history"][-1]
+    assert last["train_loss"] < first["train_loss"] - 1.0     # it actually learns
+    assert log["best_val_loss"] < first["val_loss"]
+    assert (tmp_path / "model.pt").exists() and (tmp_path / "train_log.json").exists()
 
 
-# Milestone 6: Design a CLI where users can input a story prompt and receive generated segments.
-@pytest.mark.skip(reason="milestone 6 not started")
-def test_milestone_6():
-    raise NotImplementedError
+def test_milestone_4_batches_are_shifted_by_one_and_lr_schedule():
+    data = torch.arange(100)
+    x, y = get_batch(data, block_size=10, batch_size=4)
+    assert torch.equal(x + 1, y)
+    cfg = TrainConfig(lr=1.0, min_lr=0.1, warmup_steps=10, max_steps=110)
+    assert lr_at(0, cfg) == pytest.approx(0.1) and lr_at(9, cfg) == pytest.approx(1.0)
+    assert lr_at(110, cfg) == pytest.approx(0.1)
+
+
+@pytest.fixture(scope="module")
+def trained(tmp_path_factory):
+    """One small model trained for 120 steps, shared by the tests below."""
+    path = tmp_path_factory.mktemp("trained")
+    tok, log = _tiny_train(path, steps=120)
+    tok.save(path / "tokenizer.json")
+    model, _ = GPT.load(path / "model.pt")
+    return tok, log, model, path
+
+
+def test_milestone_4_gpt_beats_bigram_baseline_on_learnable_text(trained):
+    tok, log, _, _ = trained
+    ids = torch.tensor(tok.encode(STORY))
+    bigram = BigramBaseline(tok.vocab_size).fit(ids)
+    assert log["best_val_loss"] < bigram.loss(ids)
+
+
+# ---------------------------------------------------------------- Milestone 5: generation
+def test_milestone_5_top_k_top_p_and_repetition_penalty():
+    logits = torch.tensor([3.0, 2.0, 1.0, 0.0, -1.0])
+    assert torch.isinf(filter_logits(logits, top_k=2)[2:]).all()
+    kept = filter_logits(logits, top_p=0.7)
+    assert not torch.isinf(kept[0]) and torch.isinf(kept[-1])
+    pen = apply_repetition_penalty(logits, [0, 4], 2.0)
+    assert pen[0] == 1.5 and pen[4] == -2.0 and pen[1] == 2.0
+
+
+def test_milestone_5_generation_continues_a_prompt(trained):
+    tok, _, model, _ = trained
+    gen = StoryGenerator.from_parts(model, tok)
+    cfg = SamplingConfig(max_new_tokens=15, temperature=0.5, seed=1, stop_at_sentence=False)
+    a = gen.continue_story("The captain", cfg)
+    assert a and a == gen.continue_story("The captain", cfg)          # seeded -> reproducible
+    assert len(tok.encode(a)) == 15
+    assert any(w in a for w in ("captain", "the", "Treasure", "cave", "sea"))  # learned the story's words
+    with pytest.raises(ValueError):
+        gen.continue_story("x", SamplingConfig(temperature=0))
+
+
+def test_milestone_5_stop_at_sentence_ends_cleanly(trained):
+    tok, _, model, _ = trained
+    gen = StoryGenerator.from_parts(model, tok)
+    out = gen.continue_story("The captain", SamplingConfig(max_new_tokens=5, temperature=0.3, seed=3))
+    assert gen._ends_sentence(tok.encode(out)) or len(tok.encode(out)) == 45
+
+
+# ---------------------------------------------------------------- Milestone 6: command-line interface
+def _cli(capsys, *argv, ckpt=None):
+    args = (["--checkpoints", str(ckpt)] if ckpt else []) + list(argv)
+    cli.main(args)
+    return capsys.readouterr().out
+
+
+def test_milestone_6_generate_command_prints_prompt_and_continuation(trained, capsys):
+    out = _cli(capsys, "generate", "The captain", "--length", "12", "--seed", "1", "--temperature", "0.5",
+               ckpt=trained[3])
+    assert out.startswith("The captain") and len(out.split()) > 4
+    two = _cli(capsys, "generate", "The captain", "-n", "2", "--length", "5", "--seed", "1", ckpt=trained[3])
+    assert "version 1" in two and "version 2" in two
+
+
+def test_milestone_6_story_save_continue_show_list(trained, capsys, tmp_path, monkeypatch):
+    monkeypatch.setattr(cli, "STORIES_PATH", tmp_path / "stories.json")
+    _cli(capsys, "story", "new", "cave", "The captain", "--length", "8", "--seed", "2", ckpt=trained[3])
+    first = json.loads((tmp_path / "stories.json").read_text())["cave"]["text"]
+    assert first.startswith("The captain") and len(first) > len("The captain")
+    _cli(capsys, "story", "continue", "cave", "--length", "8", "--seed", "3", ckpt=trained[3])
+    second = json.loads((tmp_path / "stories.json").read_text())["cave"]["text"]
+    assert second.startswith(first) and len(second) > len(first)        # the story grew
+    assert "cave" in _cli(capsys, "story", "list")
+    assert "captain" in _cli(capsys, "story", "show", "cave")
+    with pytest.raises(SystemExit):
+        _cli(capsys, "story", "continue", "missing", ckpt=trained[3])
+
+
+def test_milestone_6_interactive_play_session(trained, capsys, monkeypatch):
+    lines = iter(["The captain", "/temp 0.4", "/more", "/show", "/quit"])
+    monkeypatch.setattr("builtins.input", lambda _: next(lines))
+    out = _cli(capsys, "play", "--length", "6", "--seed", "4", ckpt=trained[3])
+    assert out.count("weaver>") == 2 and "temperature 0.4" in out
+
+
+def test_milestone_6_tokenize_and_helpful_errors(trained, capsys, tmp_path):
+    out = _cli(capsys, "tokenize", "The captain", ckpt=trained[3])
+    assert "tokens for 11 characters" in out
+    with pytest.raises(FileNotFoundError, match="train first"):
+        _cli(capsys, "generate", "hi", ckpt=tmp_path)
+
+
+# ---------------------------------------------------------------- evaluation helpers
+def test_evaluation_copy_check_and_exact_validation_loss(trained):
+    from app.evaluate import copied_fraction, full_val_loss
+    grams = {"one two three four five six seven eight"}
+    assert copied_fraction("one two three four five six seven eight", grams) == 1.0
+    assert copied_fraction("one two three four five six seven nine", grams) == 0.0
+    tok, _, model, _ = trained
+    ids = torch.tensor(tok.encode(STORY))
+    loss = full_val_loss(model, ids, model.cfg.block_size)
+    assert 0 < loss < BigramBaseline(tok.vocab_size).fit(ids).loss(ids) + 1

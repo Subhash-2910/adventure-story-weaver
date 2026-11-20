@@ -33,3 +33,25 @@ def milestone_3(vocab_size: int = 4096, **overrides):
     """Build a GPT (embeddings -> N x [causal self-attention + MLP] blocks -> logits)."""
     from app.model import GPT, GPTConfig
     return GPT(GPTConfig(vocab_size=vocab_size, **overrides))
+
+
+# --- Milestone 4: Set up the training loop and train the GPT model on the narrative data.
+def milestone_4(**overrides) -> dict:
+    """Train the GPT (see app/train.py for the recipe). Returns the training log with losses."""
+    from app.train import TrainConfig, train
+    return train(TrainConfig(**overrides))
+
+
+# --- Milestone 5: Implement a text generation feature that creates coherent story continuations.
+def milestone_5(prompt: str, checkpoint_dir: str | Path | None = None, **sampling) -> str:
+    """Continue `prompt` with the trained model using temperature / top-k / top-p sampling."""
+    from app.generate import DEFAULT_DIR, SamplingConfig, StoryGenerator
+    gen = StoryGenerator(checkpoint_dir or DEFAULT_DIR)
+    return gen.continue_story(prompt, SamplingConfig(**sampling))
+
+
+# --- Milestone 6: Design a CLI where users can input a story prompt and receive generated segments.
+def milestone_6(argv: list[str] | None = None) -> None:
+    """Run the command-line interface (see app/cli.py, or `python -m app.cli --help`)."""
+    from app.cli import main
+    main(argv)
